@@ -19,12 +19,12 @@ char *prozentdecode(const char* eingabe)
         head++;
 	}
     head = (char *)eingabe;
-    int len = strlen(eingabe)-(decodeAnz*2);
-    //ersetzen
-    char *resultHead = malloc(len);
-    char *resultPtr = resultHead;//return
-    while(*head){
-		if(*head == '%'){
+    int len = strlen(eingabe) - (decodeAnz * 2);
+    // ersetzen
+    char *resultHead = calloc(len + 1, sizeof(char));
+    char *resultPtr = resultHead; // return
+    while (*head) {
+		if (*head == '%') {
             char tmp[2];
             strncpy(tmp, head+1, 2);
             int number = strtol(tmp, NULL, 16);  
@@ -32,7 +32,7 @@ char *prozentdecode(const char* eingabe)
             *resultHead = c;
             resultHead+=1;
             head+=2;
-		}else if (*head != '%'){
+		} else if (*head != '%') {
             char tmp[1];
             char *tmpPtr = (char *)&tmp;
             strncpy(tmpPtr, head, 1);
@@ -41,6 +41,7 @@ char *prozentdecode(const char* eingabe)
         }
         head++;
 	}
+	
 	return resultPtr;
 }
 
@@ -52,7 +53,7 @@ char *prozentdecode(const char* eingabe)
 char *hexConverter(char* c)
 {    
     char letter[2];
-    char *out = malloc(1);
+    char *out = calloc(1, sizeof(char));
     letter[0] = c[0];
     sprintf(out, "%02X", letter[0]);
     return out;
@@ -80,9 +81,9 @@ char *prozentencode(const char* eingabe, const char* zucodieren)
         head++;
     }
     head = (char *)eingabe;//zurücksetzen
-    int len = strlen(eingabe)+(encodeAnz*2);
+    int len = strlen(eingabe) + (encodeAnz * 2);
     //ersetzen
-    char *resultHead = malloc(len*sizeof(char)+1);
+    char *resultHead = calloc(len + 1, sizeof(char));
     char *resultPtr = resultHead;//return
     int flag;
     while(*head){
@@ -116,5 +117,7 @@ char *prozentencode(const char* eingabe, const char* zucodieren)
         ptr = (char *)zucodieren;//zuruecksetzen
         head++;
     }
+	
     return resultPtr;
 }
+

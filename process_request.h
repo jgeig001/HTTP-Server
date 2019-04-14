@@ -1,3 +1,3 @@
 #define PROCESS_REQUEST_H_
 
-void process_request(int infd, int outfd);
+void process_request(int infd, int outfd, char *basis);

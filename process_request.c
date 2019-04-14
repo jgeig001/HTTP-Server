@@ -10,47 +10,46 @@
 
 #define MAX_GET_REQUEST_LENGHT 8192
 
-void process_request(int infd, int outfd)
+/* 
+ *	Liest HTTP-Request(nur GET) von infd
+ *	und schreibt Antwort auf outfd.
+ * (ersetzt Prozent-codierte Zeichen durch ASCII-Aequivalente)
+ */
+void process_request(int infd, int outfd, char *basis)
 {       
         int running=1;
-        char *requestzeile = malloc(MAX_GET_REQUEST_LENGHT);
-        char *zeichen = malloc(1);
-        char *vierZeichen = malloc(4);
+        char *requestzeile = calloc(MAX_GET_REQUEST_LENGHT, sizeof(char));
+		char zeichen = 0;
         int counter = 1, fdread;
-        int basis = SEEK_SET;
+        int base = SEEK_SET;
         // Iteration mit lseek()
-        //laeuft solange, bis "\r\n\r\n" eingelesen wird
-        while(running){
-            fdread = read(infd, zeichen, 1);
+        // laeuft solange, bis "\r\n\r\n" eingelesen wird
+        while (running) {
+            fdread = read(infd, &zeichen, 1);
             if(fdread  < 0){
                 perror("process_request: read()"); exit(1);
             }
             
-            strcat(requestzeile, zeichen);
+            strncat(requestzeile, &zeichen, 1);
             
-            if(lseek(infd, counter, basis) < 0){
+            if(lseek(infd, counter, base) < 0){
                 perror("process_request: fehler bei lseek()"); exit(1);
             }
-            //vierZeichen-Check
-            char tmpVier[4];
-            tmpVier[0]=vierZeichen[1];
-            tmpVier[1]=vierZeichen[2];
-            tmpVier[2]=vierZeichen[3];
-            tmpVier[3]=zeichen[0];
-            if(!strcmp(tmpVier, "\r\n\r\n")){
-                running = 0;
-            }
-            vierZeichen=tmpVier;
+			
+			if (strstr(requestzeile, "\r\n\r\n") != NULL) {
+				running = 0;
+			}
+			
             counter+=1;
         }
-        close(infd);       
-        
+        close(infd);
+
         // ersetzt Prozent-codierte Zeichen durch ASCII-Aequivalente
-        char *requestdecoded = prozentdecode(requestzeile);
-                
-        do_get(requestdecoded, outfd);
+        char *requestdecoded = prozentdecode(requestzeile); 
+
+        do_get(requestdecoded, outfd, basis);
         
+		free(requestzeile);
         free(requestdecoded);
-        free(requestzeile);
-        free(zeichen);
 }
+
